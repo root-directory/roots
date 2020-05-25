@@ -1,10 +1,10 @@
 from flask import (
     Flask,
     jsonify,
-    request
+    request,
 )
 from flask_pymongo import PyMongo
-import pdb
+from bson.objectid import ObjectId
 
 app = Flask(__name__)
 
@@ -22,6 +22,18 @@ def get_one_user(user_id):
         'plants': user_plants
     }
     return jsonify({'user': response})
+
+@app.route('/api/v1/users/<int:user_id>/plants', methods=['POST'])
+def create_plant(user_id):
+    user = mongo.db.users.find_one_or_404({'_id': user_id})
+    plant = {
+        '_id': str(ObjectId()),
+        'user_id': user_id,
+        'plant_name': request.json.get('plant_name', ''),
+        'plant_type': request.json.get('plant_type', '')
+    }
+    mongo.db.plants.insert_one(plant)
+    return jsonify(plant)
 
 if __name__ == '__main__':
     app.run(debug=True)
