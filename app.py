@@ -40,7 +40,15 @@ def delete_plant(user_id, plant_id):
     user = mongo.db.users.find_one_or_404({'_id': user_id})
     plant = mongo.db.plants.find_one_or_404({'_id': plant_id})
     mongo.db.plants.delete_one({'_id': plant_id})
-    return jsonify(plant)   
+    return jsonify(plant)
+
+@app.route('/api/v1/users/<int:user_id>/plants/<string:plant_id>', methods=['PATCH'])
+def update_plant(user_id, plant_id):
+    user = mongo.db.users.find_one_or_404({'_id': user_id})
+    plant = mongo.db.plants.find_one_or_404({'_id': plant_id})
+    mongo.db.plants.update_one({'_id': plant_id}, {'$set': request.json})
+    updated_plant = mongo.db.plants.find_one({'_id': plant_id})
+    return jsonify(updated_plant)
 
 if __name__ == '__main__':
     app.run(debug=True)
