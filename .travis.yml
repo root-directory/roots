@@ -1,0 +1,10 @@
+language: python
+python:
+  - "3.8"
+script:
+  - pytest
+services:
+  - mongodb
+before_script:
+  - sleep 15
+  - mongo mydb_test --eval 'db.createUser({user:"travis",pwd:"test",roles:["readWrite"]});'
