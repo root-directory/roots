@@ -35,5 +35,12 @@ def create_plant(user_id):
     mongo.db.plants.insert_one(plant)
     return jsonify(plant)
 
+@app.route('/api/v1/users/<int:user_id>/plants/<string:plant_id>', methods=['DELETE'])
+def delete_plant(user_id, plant_id):
+    user = mongo.db.users.find_one_or_404({'_id': user_id})
+    plant = mongo.db.plants.find_one_or_404({'_id': plant_id})
+    mongo.db.plants.delete_one({'_id': plant_id})
+    return jsonify(plant)   
+
 if __name__ == '__main__':
     app.run(debug=True)
