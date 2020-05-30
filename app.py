@@ -68,8 +68,8 @@ def create_photo(user_id, plant_id):
     user = mongo.db.users.find_one_or_404({'_id': user_id})
     plant = mongo.db.plants.find_one_or_404({'_id': plant_id})
     headers = {'Content-Type': 'application/pdf'}
-    files = {'file': request.files['file']}
-    r = requests.post('https://2ku6am910d.execute-api.us-west-1.amazonaws.com/v1/post-json/upload', headers=headers, files=files)
+    files = request.files['file']
+    r = requests.post('https://2ku6am910d.execute-api.us-west-1.amazonaws.com/v1/post-json/upload', headers=headers, data=files)
     if r.status_code == 200:
         photo = {
             '_id': str(ObjectId()),
