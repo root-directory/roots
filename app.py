@@ -24,30 +24,48 @@ def get_one_user(user_id):
     }
     return jsonify({'user': response})
 
-@app.route('/api/v1/users/<int:user_id>/plants', methods=['GET'])
+@app.route('/api/v1/users/<string:user_id>/plants', methods=['GET'])
 def get_user_plants(user_id):
     user = mongo.db.users.find_one_or_404({'_id': user_id})
     user_plants = mongo.db.plants.find({'user_id': user_id})
     format_plant = lambda plant: {
-        'plant_id': plant['_id'],
-        'user_id': plant['user_id'],
-        'nickname': plant['nickname'],
-        'plant_type': plant['plant_type']
+        'id': plant['_id'],
+        'userId': plant['user_id'],
+        'plantName': plant['plant_name'],
+        'plantType': plant['plant_type'],
+        'imageURL': plant['image_url'],
+        'care': plant['care']
     }
     response = list(map(format_plant, list(user_plants)))
     return jsonify({'plants': response})
 
+@app.route('/api/v1/users/<string:user_id>/plants/<string:plant_id>', methods=['GET'])
+def get_one_plant(user_id, plant_id):
+    user = mongo.db.users.find_one_or_404({'_id': user_id})
+    plant = mongo.db.plants.find_one_or_404({'_id': plant_id})
+    response = {
+        'id': plant_id,
+        'userId': user_id,
+        'plantName': plant['plant_name'],
+        'plantType': plant['plant_type'],
+        'timestamp': plant['timestamp'],
+        'imageURL': plant['image_url'],
+        'care': plant['care']
+    }
+    return jsonify({'plant': response})
 
-@app.route('/api/v1/users/<int:user_id>/plants', methods=['POST'])
+@app.route('/api/v1/users/<string:user_id>/plants', methods=['POST'])
 def create_plant(user_id):
     user = mongo.db.users.find_one_or_404({'_id': user_id})
     timestamp = int(datetime.now().timestamp() * 1000)
     plant = {
         '_id': str(ObjectId()),
         'user_id': user_id,
-        'plant_name': request.json.get('plant_name', ''),
-        'plant_type': request.json.get('plant_type', ''),
-        'timestamp': timestamp
+        'plant_name': request.json.get('plantName', ''),
+        'plant_type': request.json.get('plantType', ''),
+        'timestamp': timestamp,
+        'image_url': request.json.get('imageURL', ''),
+        'care': request.json.get('care', {})
     }
     mongo.db.plants.insert_one(plant)
     return jsonify(plant)
