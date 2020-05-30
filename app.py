@@ -22,7 +22,7 @@ def get_one_user(user_id):
         'userName': user['name'],
         'timestamp': user['timestamp']
     }
-    return jsonify({response})
+    return jsonify(response)
 
 @app.route('/api/v1/users/<string:user_id>/plants', methods=['GET'])
 def get_user_plants(user_id):
