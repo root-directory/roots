@@ -7,8 +7,10 @@ from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 import requests
 from datetime import datetime
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 app.config['MONGO_DBNAME'] = 'root_directory'
 app.config['MONGO_URI'] = 'mongodb+srv://admin:OeMp96cSKTBrjtFz@cluster0-anyov.mongodb.net/root_directory?retryWrites=true&w=majority'
