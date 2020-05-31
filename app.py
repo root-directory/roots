@@ -85,22 +85,21 @@ def update_plant(user_id, plant_id):
     updated_plant = mongo.db.plants.find_one({'_id': plant_id})
     return jsonify(updated_plant)
 
-@app.route('/api/v1/users/<string:user_id>/plants/<string:plant_id>/photos', methods=['POST'])
-def create_photo(user_id, plant_id):
-    user = mongo.db.users.find_one_or_404({'_id': user_id})
-    plant = mongo.db.plants.find_one_or_404({'_id': plant_id})
-    headers = {'Content-Type': 'application/pdf'}
+@app.route('/api/v1/photos', methods=['POST'])
+def create_photo():
+    headers = {'Content-Type': 'application/jpg'}
     files = request.files['file']
     r = requests.post('https://2ku6am910d.execute-api.us-west-1.amazonaws.com/v1/post-json/upload', headers=headers, data=files)
     if r.status_code == 200:
+        timestamp = int(datetime.now().timestamp() * 1000)
         photo = {
             '_id': str(ObjectId()),
-            'plant_id': plant_id,
-            'photo_url': r.json()["body"]
+            'timestamp': timestamp,
+            'photo_url': r.json()['body']
         }
         mongo.db.photos.insert_one(photo)
         return jsonify(photo)
-    return jsonify({"error": "Failed to upload"})
+    return jsonify({'error': 'Failed to upload'})
 
 @app.route('/api/v1/users/<string:user_id>/plants/<string:plant_id>/journal', methods=['POST'])
 def create_journal_entry(user_id, plant_id):
