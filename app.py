@@ -70,6 +70,18 @@ def create_plant(user_id):
         'care': request.json.get('care', {})
     }
     mongo.db.plants.insert_one(plant)
+
+    journal_entry = {
+        '_id': str(ObjectId()),
+        'plant_id': plant['_id'],
+        'entry_type': 'image',
+        'timestamp': timestamp,
+        'info': {
+            'imageURL': plant['image_url'],
+            'notes': 'Plant added to garden!'
+                }
+            }
+    mongo.db.journal.insert_one(journal_entry)
     return jsonify(plant)
 
 @app.route('/api/v1/users/<string:user_id>/plants/<string:plant_id>', methods=['DELETE'])
@@ -108,12 +120,16 @@ def create_journal_entry(user_id, plant_id):
     user = mongo.db.users.find_one_or_404({'_id': user_id})
     plant = mongo.db.plants.find_one_or_404({'_id': plant_id})
     timestamp = int(datetime.now().timestamp() * 1000)
+
+    if request.json.get('entryType') == 'image':
+        mongo.db.plants.update_one({'_id': plant_id}, {'$set': {'image_url': request.json.get('info')['imageURL']}})
+
     journal_entry = {
         '_id': str(ObjectId()),
         'plant_id': plant_id,
         'entry_type': request.json.get('entryType', ''),
         'timestamp': timestamp,
-        'info': request.json.get('info', ''),
+        'info': request.json.get('info', '')
     }
     mongo.db.journal.insert_one(journal_entry)
     return jsonify(journal_entry)
