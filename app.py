@@ -69,6 +69,15 @@ def create_plant(user_id):
         'care': request.json.get('care', {})
     }
     mongo.db.plants.insert_one(plant)
+
+    journal_entry = {
+        '_id': str(ObjectId()),
+        'plant_id': plant['_id'],
+        'entry_type': 'image',
+        'timestamp': timestamp,
+        'info': plant['image_url'],
+    }
+    mongo.db.journal.insert_one(journal_entry)
     return jsonify(plant)
 
 @app.route('/api/v1/users/<string:user_id>/plants/<string:plant_id>', methods=['DELETE'])
