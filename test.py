@@ -33,7 +33,7 @@ class TestFlaskCase(unittest.TestCase):
         }
         self.mongo.db.plants.insert_one(plant)
         result = self.app.get('/api/v1/users/5e12g4a/plants')
-        self.assertEqual(result.json['plants'][0]['id'], plant['_id'])
+        self.assertEqual(result.json['plants'][0]['plantName'], plant['plant_name'])
 
     def test_create_plant(self):
         plant = {
