@@ -12,8 +12,13 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-app.config['MONGO_DBNAME'] = 'root_directory'
-app.config['MONGO_URI'] = 'mongodb+srv://admin:OeMp96cSKTBrjtFz@cluster0-anyov.mongodb.net/root_directory?retryWrites=true&w=majority'
+if __name__ == '__main__':
+    app.config['MONGO_DBNAME'] = 'root_directory'
+    app.config['MONGO_URI'] = 'mongodb+srv://admin:OeMp96cSKTBrjtFz@cluster0-anyov.mongodb.net/root_directory?retryWrites=true&w=majority'
+else:
+    app.config['MONGO_DBNAME'] = 'test'
+    app.config['MONGO_URI'] = 'mongodb+srv://admin:OeMp96cSKTBrjtFz@cluster0-anyov.mongodb.net/root_directory_test?retryWrites=true&w=majority'
+
 mongo = PyMongo(app)
 
 @app.route('/api/v1/users/<string:user_id>', methods=['GET'])
