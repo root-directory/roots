@@ -61,7 +61,7 @@ def get_one_plant(user_id, plant_id):
         'imageURL': plant['image_url'],
         'care': plant['care']
     }
-    return jsonify({'plant': response})
+    return jsonify(response)
 
 @app.route('/api/v1/users/<string:user_id>/plants', methods=['POST'])
 def create_plant(user_id):
