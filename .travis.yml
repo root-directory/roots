@@ -2,7 +2,7 @@ language: python
 python:
   - "3.8"
 script:
-  - unittest
+  - python test.py
 services:
   - mongodb
 before_script:
