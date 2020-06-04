@@ -5,7 +5,10 @@ from app import app
 class TestFlaskCase(unittest.TestCase):
     def setUp(self):
         self.app = app.test_client(self)
-        self.mongo = PyMongo(app)
+        self.app.application.config['MONGO_DBNAME'] = 'test'
+        self.app.application.config['MONGO_URI'] = 'mongodb+srv://admin:OeMp96cSKTBrjtFz@cluster0-anyov.mongodb.net/root_directory_test?retryWrites=true&w=majority'
+        self.app.application.mongo = PyMongo(self.app.application)
+        self.mongo = self.app.application.mongo
 
     def tearDown(self):
         self.mongo.db.plants.drop()

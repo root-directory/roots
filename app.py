@@ -12,19 +12,15 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-if __name__ == '__main__':
-    app.config['MONGO_DBNAME'] = 'root_directory'
-    app.config['MONGO_URI'] = 'mongodb+srv://admin:OeMp96cSKTBrjtFz@cluster0-anyov.mongodb.net/root_directory?retryWrites=true&w=majority'
-else:
-    app.config['MONGO_DBNAME'] = 'test'
-    app.config['MONGO_URI'] = 'mongodb+srv://admin:OeMp96cSKTBrjtFz@cluster0-anyov.mongodb.net/root_directory_test?retryWrites=true&w=majority'
+app.config['MONGO_DBNAME'] = 'root_directory'
+app.config['MONGO_URI'] = 'mongodb+srv://admin:OeMp96cSKTBrjtFz@cluster0-anyov.mongodb.net/root_directory?retryWrites=true&w=majority'
 
-mongo = PyMongo(app)
+app.mongo = PyMongo(app)
 
 # User
 @app.route('/api/v1/users/<string:user_id>', methods=['GET'])
 def get_one_user(user_id):
-    user = mongo.db.users.find_one_or_404({'_id': user_id})
+    user = app.mongo.db.users.find_one_or_404({'_id': user_id})
     response = {
         'id': user['_id'],
         'userName': user['name'],
@@ -35,8 +31,8 @@ def get_one_user(user_id):
 # Plants
 @app.route('/api/v1/users/<string:user_id>/plants', methods=['GET'])
 def get_user_plants(user_id):
-    user = mongo.db.users.find_one_or_404({'_id': user_id})
-    user_plants = mongo.db.plants.find({'user_id': user_id})
+    user = app.mongo.db.users.find_one_or_404({'_id': user_id})
+    user_plants = app.mongo.db.plants.find({'user_id': user_id})
     format_plant = lambda plant: {
         'id': plant['_id'],
         'userId': plant['user_id'],
@@ -50,8 +46,8 @@ def get_user_plants(user_id):
 
 @app.route('/api/v1/users/<string:user_id>/plants/<string:plant_id>', methods=['GET'])
 def get_one_plant(user_id, plant_id):
-    user = mongo.db.users.find_one_or_404({'_id': user_id})
-    plant = mongo.db.plants.find_one_or_404({'_id': plant_id})
+    user = app.mongo.db.users.find_one_or_404({'_id': user_id})
+    plant = app.mongo.db.plants.find_one_or_404({'_id': plant_id})
     response = {
         'id': plant_id,
         'userId': user_id,
@@ -65,7 +61,7 @@ def get_one_plant(user_id, plant_id):
 
 @app.route('/api/v1/users/<string:user_id>/plants', methods=['POST'])
 def create_plant(user_id):
-    user = mongo.db.users.find_one_or_404({'_id': user_id})
+    user = app.mongo.db.users.find_one_or_404({'_id': user_id})
     timestamp = int(datetime.now().timestamp() * 1000)
     plant = {
         '_id': str(ObjectId()),
@@ -76,7 +72,7 @@ def create_plant(user_id):
         'image_url': request.json.get('imageURL', ''),
         'care': request.json.get('care', {})
     }
-    mongo.db.plants.insert_one(plant)
+    app.mongo.db.plants.insert_one(plant)
 
     journal_entry = {
         '_id': str(ObjectId()),
@@ -88,30 +84,30 @@ def create_plant(user_id):
             'notes': 'Plant added to garden!'
                 }
             }
-    mongo.db.journal.insert_one(journal_entry)
+    app.mongo.db.journal.insert_one(journal_entry)
     return jsonify(plant)
 
 @app.route('/api/v1/users/<string:user_id>/plants/<string:plant_id>', methods=['PATCH'])
 def update_plant(user_id, plant_id):
-    user = mongo.db.users.find_one_or_404({'_id': user_id})
-    plant = mongo.db.plants.find_one_or_404({'_id': plant_id})
-    mongo.db.plants.update_one({'_id': plant_id}, {'$set': request.json})
-    updated_plant = mongo.db.plants.find_one({'_id': plant_id})
+    user = app.mongo.db.users.find_one_or_404({'_id': user_id})
+    plant = app.mongo.db.plants.find_one_or_404({'_id': plant_id})
+    app.mongo.db.plants.update_one({'_id': plant_id}, {'$set': request.json})
+    updated_plant = app.mongo.db.plants.find_one({'_id': plant_id})
     return jsonify(updated_plant)
 
 @app.route('/api/v1/users/<string:user_id>/plants/<string:plant_id>', methods=['DELETE'])
 def delete_plant(user_id, plant_id):
-    user = mongo.db.users.find_one_or_404({'_id': user_id})
-    plant = mongo.db.plants.find_one_or_404({'_id': plant_id})
-    mongo.db.plants.delete_one({'_id': plant_id})
+    user = app.mongo.db.users.find_one_or_404({'_id': user_id})
+    plant = app.mongo.db.plants.find_one_or_404({'_id': plant_id})
+    app.mongo.db.plants.delete_one({'_id': plant_id})
     return jsonify(plant)
 
 # Journals
 @app.route('/api/v1/users/<string:user_id>/plants/<string:plant_id>/journal', methods=['GET'])
 def get_plant_journal(user_id, plant_id):
-    user = mongo.db.users.find_one_or_404({'_id': user_id})
-    plant = mongo.db.plants.find_one_or_404({'_id': plant_id})
-    plant_journal = mongo.db.journal.find({'plant_id': plant_id})
+    user = app.mongo.db.users.find_one_or_404({'_id': user_id})
+    plant = app.mongo.db.plants.find_one_or_404({'_id': plant_id})
+    plant_journal = app.mongo.db.journal.find({'plant_id': plant_id})
     format_journal = lambda journal: {
         'id': journal['_id'],
         'plantId': plant_id,
@@ -124,9 +120,9 @@ def get_plant_journal(user_id, plant_id):
 
 @app.route('/api/v1/users/<string:user_id>/plants/<string:plant_id>/journal/<string:journal_id>', methods=['GET'])
 def get_journal_entry(user_id, plant_id, journal_id):
-    user = mongo.db.users.find_one_or_404({'_id': user_id})
-    plant = mongo.db.plants.find_one_or_404({'_id': plant_id})
-    journal = mongo.db.journal.find_one_or_404({'_id': journal_id})
+    user = app.mongo.db.users.find_one_or_404({'_id': user_id})
+    plant = app.mongo.db.plants.find_one_or_404({'_id': plant_id})
+    journal = app.mongo.db.journal.find_one_or_404({'_id': journal_id})
     journal_entry = {
         'id': journal['_id'],
         'plantId': plant_id,
@@ -138,12 +134,12 @@ def get_journal_entry(user_id, plant_id, journal_id):
 
 @app.route('/api/v1/users/<string:user_id>/plants/<string:plant_id>/journal', methods=['POST'])
 def create_journal_entry(user_id, plant_id):
-    user = mongo.db.users.find_one_or_404({'_id': user_id})
-    plant = mongo.db.plants.find_one_or_404({'_id': plant_id})
+    user = app.mongo.db.users.find_one_or_404({'_id': user_id})
+    plant = app.mongo.db.plants.find_one_or_404({'_id': plant_id})
     timestamp = int(datetime.now().timestamp() * 1000)
 
     if request.json.get('entryType') == 'image':
-        mongo.db.plants.update_one({'_id': plant_id}, {'$set': {'image_url': request.json.get('info')['imageURL']}})
+        app.mongo.db.plants.update_one({'_id': plant_id}, {'$set': {'image_url': request.json.get('info')['imageURL']}})
 
     journal_entry = {
         '_id': str(ObjectId()),
@@ -152,24 +148,24 @@ def create_journal_entry(user_id, plant_id):
         'timestamp': timestamp,
         'info': request.json.get('info', '')
     }
-    mongo.db.journal.insert_one(journal_entry)
+    app.mongo.db.journal.insert_one(journal_entry)
     return jsonify(journal_entry)
 
 @app.route('/api/v1/users/<string:user_id>/plants/<string:plant_id>/journal/<string:journal_id>', methods=['PATCH'])
 def update_journal(user_id, plant_id, journal_id):
-    user = mongo.db.users.find_one_or_404({'_id': user_id})
-    plant = mongo.db.plants.find_one_or_404({'_id': plant_id})
-    journal = mongo.db.journal.find_one_or_404({'_id': journal_id})
-    mongo.db.journal.update_one({'_id': journal_id}, {'$set': {'info': {'notes': request.json.get('notes', journal['info']['notes'])}}})
-    updated_journal = mongo.db.journal.find_one({'_id': journal_id})
+    user = app.mongo.db.users.find_one_or_404({'_id': user_id})
+    plant = app.mongo.db.plants.find_one_or_404({'_id': plant_id})
+    journal = app.mongo.db.journal.find_one_or_404({'_id': journal_id})
+    app.mongo.db.journal.update_one({'_id': journal_id}, {'$set': {'info': {'notes': request.json.get('notes', journal['info']['notes'])}}})
+    updated_journal = app.mongo.db.journal.find_one({'_id': journal_id})
     return jsonify(updated_journal)
 
 @app.route('/api/v1/users/<string:user_id>/plants/<string:plant_id>/journal/<string:journal_id>', methods=['DELETE'])
 def delete_journal(user_id, plant_id, journal_id):
-    user = mongo.db.users.find_one_or_404({'_id': user_id})
-    plant = mongo.db.plants.find_one_or_404({'_id': plant_id})
-    journal = mongo.db.journal.find_one_or_404({'_id': journal_id})
-    mongo.db.journal.delete_one({'_id': journal_id})
+    user = app.mongo.db.users.find_one_or_404({'_id': user_id})
+    plant = app.mongo.db.plants.find_one_or_404({'_id': plant_id})
+    journal = app.mongo.db.journal.find_one_or_404({'_id': journal_id})
+    app.mongo.db.journal.delete_one({'_id': journal_id})
     return jsonify(journal)
 
 # Photos
@@ -185,7 +181,7 @@ def create_photo():
             'timestamp': timestamp,
             'photo_url': r.json()['body']
         }
-        mongo.db.photos.insert_one(photo)
+        app.mongo.db.photos.insert_one(photo)
         return jsonify(photo)
     return jsonify({'error': 'Failed to upload'})
 
