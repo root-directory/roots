@@ -3,7 +3,19 @@
 ## Background and Description
 Roots is the backend API for our capstone project Root-Directory. Root-Directory is an app to track plant care schedules and growth by uploading pictures and care events such as waterings to a timeline. 
 
-production link: https://root-directory-server.herokuapp.com/api/v1/users/5ed2a8ad338bcf64692b07ac/plants
+BE production link: https://root-directory-server.herokuapp.com
+
+FE production link: https://root-directory-fe.herokuapp.com/<br>
+FE repo: https://github.com/root-directory/leaves<br>
+
+## BE Team
+### Jonathan Tschida<br>
+GH: jonathan-tschida<br>
+linkedin: jonathan-tschida<br>
+
+### Cassie Achzenick<br>
+GH: caachz<br>
+linkedin: cachzenick<br>
 
 ## Tech Stack
 Python<br>
