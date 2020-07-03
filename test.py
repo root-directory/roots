@@ -32,6 +32,7 @@ class TestFlaskCase(unittest.TestCase):
             'plant_name': 'Bob',
             'plant_type': 'snakeplant',
             'timestamp': 1590863754003,
+            'last_watered': 1590863754003,
             'image_url': 'www.aws.com/s3/image.jpg',
             'care': {}
         }
@@ -47,6 +48,7 @@ class TestFlaskCase(unittest.TestCase):
             'plant_name': 'Bob',
             'plant_type': 'snakeplant',
             'timestamp': 1590863754003,
+            'last_watered': 1590863754003,
             'image_url': 'www.aws.com/s3/image.jpg',
             'care': {}
         }
@@ -82,6 +84,7 @@ class TestFlaskCase(unittest.TestCase):
             'plant_name': 'Bob',
             'plant_type': 'snakeplant',
             'timestamp': 1590863754003,
+            'last_watered': 1590863754003,
             'image_url': 'www.aws.com/s3/image.jpg',
             'care': {}
         }
@@ -105,6 +108,7 @@ class TestFlaskCase(unittest.TestCase):
             'plant_name': 'Bob',
             'plant_type': 'snakeplant',
             'timestamp': 1590863754003,
+            'last_watered': 1590863754003,
             'image_url': 'www.aws.com/s3/image.jpg',
             'care': {}
         }
@@ -125,6 +129,7 @@ class TestFlaskCase(unittest.TestCase):
             'plant_name': 'Bob',
             'plant_type': 'snakeplant',
             'timestamp': 1590863754003,
+            'last_watered': 1590863754003,
             'image_url': 'www.aws.com/s3/image.jpg',
             'care': {}
         }
@@ -152,6 +157,7 @@ class TestFlaskCase(unittest.TestCase):
             'plant_name': 'Bob',
             'plant_type': 'snakeplant',
             'timestamp': 1590863754003,
+            'last_watered': 1590863754003,
             'image_url': 'www.aws.com/s3/image.jpg',
             'care': {}
         }
@@ -178,6 +184,7 @@ class TestFlaskCase(unittest.TestCase):
             'plant_name': 'Bob',
             'plant_type': 'snakeplant',
             'timestamp': 1590863754003,
+            'last_watered': 1590863754003,
             'image_url': 'www.aws.com/s3/none.jpg',
             'care': {}
         }
@@ -203,6 +210,36 @@ class TestFlaskCase(unittest.TestCase):
         self.assertEqual(result['info']['imageURL'], 'www.aws.com/s3/image.jpg')
         self.assertEqual(plant_after['image_url'], 'www.aws.com/s3/image.jpg')
 
+    def test_water_plant(self):
+        plant_doc = {
+            '_id': '5e12g5c',
+            'user_id': '5e12g4a',
+            'plant_name': 'Bob',
+            'plant_type': 'snakeplant',
+            'timestamp': 1590863754003,
+            'last_watered': 1590863754003,
+            'image_url': 'www.aws.com/s3/none.jpg',
+            'care': {}
+        }
+        journal_request = {
+            'entryType': 'water',
+            'info': {
+                'imageURL': '',
+                'notes': ''
+            }
+
+        }
+        self.mongo.db.plants.insert_one(plant_doc)
+        plant_before = self.mongo.db.plants.find_one({'_id': '5e12g5c'})
+        self.assertEqual(plant_before['last_watered'], 1590863754003)
+        response = self.app.post(
+            '/api/v1/users/5e12g4a/plants/5e12g5c/journal',
+            json=journal_request
+        )
+        plant_after = self.mongo.db.plants.find_one({'_id': '5e12g5c'})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(plant_after['last_watered'], 1590863754003)
+
     def test_update_journal(self):
         plant_doc = {
             '_id': '5e12g5c',
@@ -210,6 +247,7 @@ class TestFlaskCase(unittest.TestCase):
             'plant_name': 'Bob',
             'plant_type': 'snakeplant',
             'timestamp': 1590863754003,
+            'last_watered': 1590863754003,
             'image_url': 'www.aws.com/s3/image.jpg',
             'care': {}
         }
@@ -246,6 +284,7 @@ class TestFlaskCase(unittest.TestCase):
             'plant_name': 'Bob',
             'plant_type': 'snakeplant',
             'timestamp': 1590863754003,
+            'last_watered': 1590863754003,
             'image_url': 'www.aws.com/s3/image.jpg',
             'care': {}
         }
