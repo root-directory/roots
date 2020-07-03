@@ -39,6 +39,7 @@ def get_user_plants(user_id):
         'plantName': plant['plant_name'],
         'plantType': plant['plant_type'],
         'imageURL': plant['image_url'],
+        'lastWatered': plant['last_watered'],
         'care': plant['care']
     }
     response = list(map(format_plant, list(user_plants)))
@@ -55,6 +56,7 @@ def get_one_plant(user_id, plant_id):
         'plantType': plant['plant_type'],
         'timestamp': plant['timestamp'],
         'imageURL': plant['image_url'],
+        'lastWatered': plant['last_watered'],
         'care': plant['care']
     }
     return jsonify(response)
@@ -70,6 +72,7 @@ def create_plant(user_id):
         'plant_type': request.json.get('plantType', ''),
         'timestamp': timestamp,
         'image_url': request.json.get('imageURL', ''),
+        'last_watered': timestamp,
         'care': request.json.get('care', {})
     }
     app.mongo.db.plants.insert_one(plant)
@@ -140,6 +143,8 @@ def create_journal_entry(user_id, plant_id):
 
     if request.json.get('entryType') == 'image':
         app.mongo.db.plants.update_one({'_id': plant_id}, {'$set': {'image_url': request.json.get('info')['imageURL']}})
+    if request.json.get('entryType') == 'water':
+        app.mongo.db.plants.update_one({'_id': plant_id}, {'$set': {'last_watered': timestamp}})
 
     journal_entry = {
         '_id': str(ObjectId()),
