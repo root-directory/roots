@@ -103,6 +103,7 @@ def delete_plant(user_id, plant_id):
     user = app.mongo.db.users.find_one_or_404({'_id': user_id})
     plant = app.mongo.db.plants.find_one_or_404({'_id': plant_id})
     app.mongo.db.plants.delete_one({'_id': plant_id})
+    app.mongo.db.journal.delete_many({'plant_id': plant_id})
     return jsonify(plant)
 
 # Journals
