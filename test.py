@@ -112,15 +112,32 @@ class TestFlaskCase(unittest.TestCase):
             'image_url': 'www.aws.com/s3/image.jpg',
             'care': {}
         }
+        journal_doc = {
+            '_id': '5e12g8f',
+            'plant_id': '5e12g5c',
+            'timestamp': 1590863754003,
+            'entry_type': 'image',
+            'info': {
+                'imageURL': 'www.aws.com/s3/image.jpg',
+                'notes': ''
+            }
+
+        }
         self.mongo.db.plants.insert_one(plant_doc)
+        self.mongo.db.journal.insert_one(journal_doc)
         plant = self.mongo.db.plants.find_one({'_id': '5e12g5c'})
+        journals_before = list(self.mongo.db.journal.find({'plant_id': '5e12g5c'}))
         self.assertEqual(plant['plant_name'], 'Bob')
+        self.assertEqual(len(journals_before), 1)
 
         response = self.app.delete('/api/v1/users/5e12g4a/plants/5e12g5c')
         db = list(self.mongo.db.plants.find())
+        journals_after = list(self.mongo.db.journal.find({'plant_id': '5e12g5c'}))
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json['plant_name'], 'Bob')
         self.assertEqual(len(db), 0)
+        self.assertEqual(len(journals_after), 0)
 
     def test_get_plant_journal(self):
         plant_doc = {
